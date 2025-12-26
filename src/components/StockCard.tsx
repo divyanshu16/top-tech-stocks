@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import { Stock } from '../types/stock';
 import TradingViewChart from './TradingViewChart';
+import { fetchStockPerformance, formatPercentage, getPercentageColor, type StockPerformance } from '../utils/stockData';
 
 interface StockCardProps {
   stock: Stock;
@@ -7,6 +9,27 @@ interface StockCardProps {
 }
 
 export default function StockCard({ stock, onClick }: StockCardProps) {
+  const [performance, setPerformance] = useState<StockPerformance | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadPerformance = async () => {
+      const data = await fetchStockPerformance(stock.symbol);
+      if (mounted) {
+        setPerformance(data);
+        setLoading(false);
+      }
+    };
+
+    loadPerformance();
+
+    return () => {
+      mounted = false;
+    };
+  }, [stock.symbol]);
+
   return (
     <div
       onClick={onClick}
@@ -37,13 +60,49 @@ export default function StockCard({ stock, onClick }: StockCardProps) {
         />
       </div>
 
-      {/* Time period indicators */}
-      <div className="px-4 py-2 bg-slate-800 border-t border-slate-700">
-        <div className="flex justify-center gap-4 text-xs text-slate-500">
-          <span className="hover:text-blue-400 cursor-pointer">1D</span>
-          <span className="hover:text-blue-400 cursor-pointer">1W</span>
-          <span className="hover:text-blue-400 cursor-pointer">1M</span>
-        </div>
+      {/* Performance metrics */}
+      <div className="px-4 py-3 bg-slate-800 border-t border-slate-700">
+        {loading ? (
+          <div className="flex justify-center gap-6 text-xs">
+            <div className="flex flex-col items-center">
+              <span className="text-slate-500 mb-1">1D</span>
+              <span className="text-slate-600">...</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-slate-500 mb-1">1W</span>
+              <span className="text-slate-600">...</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-slate-500 mb-1">1M</span>
+              <span className="text-slate-600">...</span>
+            </div>
+          </div>
+        ) : performance ? (
+          <div className="flex justify-center gap-6 text-xs">
+            <div className="flex flex-col items-center">
+              <span className="text-slate-500 mb-1">1D</span>
+              <span className={`font-semibold ${getPercentageColor(performance.day)}`}>
+                {formatPercentage(performance.day)}
+              </span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-slate-500 mb-1">1W</span>
+              <span className={`font-semibold ${getPercentageColor(performance.week)}`}>
+                {formatPercentage(performance.week)}
+              </span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-slate-500 mb-1">1M</span>
+              <span className={`font-semibold ${getPercentageColor(performance.month)}`}>
+                {formatPercentage(performance.month)}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-center text-xs text-slate-600">
+            Data unavailable
+          </div>
+        )}
       </div>
     </div>
   );
