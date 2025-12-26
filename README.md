@@ -106,6 +106,31 @@ export const topTechStocks: Stock[] = [
 ];
 ```
 
+## 🧪 Testing
+
+This project includes comprehensive test coverage with 137+ tests:
+
+- **57 Unit Tests** (Vitest + React Testing Library)
+- **80+ E2E Tests** (Playwright)
+- **Accessibility Tests** (WCAG 2.1 Level AA)
+- **Responsive Design Tests** (Mobile, Tablet, Desktop)
+
+```bash
+# Run unit tests
+npm run test
+
+# Run E2E tests (requires: npx playwright install)
+npm run test:e2e
+
+# Run all tests
+npm run test:all
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+See [TESTING.md](./TESTING.md) for detailed testing documentation.
+
 ## 📝 License
 
 MIT License - feel free to use this project for personal or commercial purposes.
