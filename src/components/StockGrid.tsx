@@ -19,8 +19,8 @@ export default function StockGrid({ stocks, onStockClick }: StockGridProps) {
         </p>
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {/* Grid - 3 columns max for better comparison */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
         {stocks.map((stock) => (
           <StockCard
             key={stock.symbol}
@@ -33,7 +33,7 @@ export default function StockGrid({ stocks, onStockClick }: StockGridProps) {
       {/* Footer */}
       <div className="mt-12 text-center text-slate-500 text-sm">
         <p>
-          Real-time data powered by TradingView • Click any stock for detailed view
+          Real-time data powered by TradingView • View 1D, 1W, 1M fluctuations • Click for detailed view
         </p>
       </div>
     </div>
