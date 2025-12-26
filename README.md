@@ -16,6 +16,7 @@ A modern, real-time dashboard for comparing top US technology stocks at a glance
 - **React 18** - Modern UI framework
 - **TypeScript** - Type-safe development
 - **Vite** - Lightning-fast build tool
+- **Bun** - Fast all-in-one JavaScript runtime & package manager
 - **Tailwind CSS** - Utility-first styling
 - **TradingView Widgets** - Real-time market data
 
@@ -42,16 +43,16 @@ A modern, real-time dashboard for comparing top US technology stocks at a glance
 
 ```bash
 # Install dependencies
-npm install
+bun install
 
 # Start development server
-npm run dev
+bun run dev
 
 # Build for production
-npm run build
+bun run build
 
 # Preview production build
-npm run preview
+bun run preview
 ```
 
 ## 📖 Usage
@@ -117,16 +118,16 @@ This project includes comprehensive test coverage with 137+ tests:
 
 ```bash
 # Run unit tests
-npm run test
+bun test
 
-# Run E2E tests (requires: npx playwright install)
-npm run test:e2e
+# Run E2E tests (requires: bunx playwright install)
+bun test:e2e
 
 # Run all tests
-npm run test:all
+bun test:all
 
 # Run tests with coverage
-npm run test:coverage
+bun test:coverage
 ```
 
 See [TESTING.md](./TESTING.md) for detailed testing documentation.

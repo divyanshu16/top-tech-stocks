@@ -34,40 +34,40 @@ tests/
 
 ```bash
 # Run all unit tests
-npm run test
+bun test
 
 # Run tests once (CI mode)
-npm run test:run
+bun test:run
 
 # Run tests with UI
-npm run test:ui
+bun test:ui
 
 # Run tests with coverage
-npm run test:coverage
+bun test:coverage
 ```
 
 ### End-to-End Tests (Playwright)
 
 **Note**: Playwright browsers need to be installed first:
 ```bash
-npx playwright install
+bunx playwright install
 ```
 
 ```bash
 # Run all E2E tests
-npm run test:e2e
+bun test:e2e
 
 # Run E2E tests with UI mode
-npm run test:e2e:ui
+bun test:e2e:ui
 
 # Run E2E tests in headed mode (see browser)
-npm run test:e2e:headed
+bun test:e2e:headed
 ```
 
 ### Run All Tests
 
 ```bash
-npm run test:all
+bun test:all
 ```
 
 ## Unit Tests (57 tests)
@@ -315,25 +315,25 @@ Potential areas for expansion:
 ### Unit Tests
 ```bash
 # Run specific test file
-npm run test tests/unit/App.test.tsx
+bun test tests/unit/App.test.tsx
 
 # Run tests in watch mode
-npm run test
+bun test
 
 # Open UI for debugging
-npm run test:ui
+bun test:ui
 ```
 
 ### E2E Tests
 ```bash
 # Run specific test file
-npx playwright test tests/e2e/modal-functionality.spec.ts
+bunx playwright test tests/e2e/modal-functionality.spec.ts
 
 # Debug mode (headed + inspector)
-npx playwright test --debug
+bunx playwright test --debug
 
 # Show test report
-npx playwright show-report
+bunx playwright show-report
 ```
 
 ## Writing New Tests
