@@ -32,46 +32,40 @@ export default function TradingViewChart({
 
     const fullSymbol = `${exchange}:${symbol}`;
 
+    // Use the standard widget for both mini and advanced
+    const config: any = {
+      container_id: containerRef.current.id,
+      symbol: fullSymbol,
+      interval: 'D',
+      timezone: 'America/New_York',
+      theme: 'dark',
+      style: '1',
+      locale: 'en',
+      enable_publishing: false,
+      allow_symbol_change: false,
+      save_image: false,
+      width: '100%',
+      height: height,
+    };
+
     if (type === 'mini') {
-      // Mini widget for cards
-      widgetRef.current = new window.TradingView.MiniChart({
-        container_id: containerRef.current.id,
-        symbol: fullSymbol,
-        locale: 'en',
-        width: '100%',
-        height: height,
-        dateRange: '12M',
-        colorTheme: 'dark',
-        trendLineColor: 'rgba(41, 98, 255, 1)',
-        underLineColor: 'rgba(41, 98, 255, 0.3)',
-        isTransparent: true,
-        autosize: true,
-        largeChartUrl: '',
-      });
+      // Simplified settings for mini cards
+      config.hide_top_toolbar = true;
+      config.hide_legend = true;
+      config.hide_side_toolbar = true;
+      config.toolbar_bg = '#0f172a';
+      config.withdateranges = false;
     } else {
-      // Advanced widget for modal
-      widgetRef.current = new window.TradingView.widget({
-        container_id: containerRef.current.id,
-        symbol: fullSymbol,
-        interval: 'D',
-        timezone: 'America/New_York',
-        theme: 'dark',
-        style: '1',
-        locale: 'en',
-        toolbar_bg: '#1e293b',
-        enable_publishing: false,
-        hide_side_toolbar: false,
-        allow_symbol_change: false,
-        save_image: false,
-        studies: ['MASimple@tv-basicstudies', 'RSI@tv-basicstudies'],
-        show_popup_button: false,
-        popup_width: '1000',
-        popup_height: '650',
-        width: '100%',
-        height: height,
-        backgroundColor: '#0f172a',
-        gridColor: '#1e293b',
-      });
+      // Full settings for modal
+      config.toolbar_bg = '#1e293b';
+      config.hide_side_toolbar = false;
+      config.studies = ['MASimple@tv-basicstudies'];
+    }
+
+    try {
+      widgetRef.current = new window.TradingView.widget(config);
+    } catch (error) {
+      console.error('TradingView widget error:', error);
     }
 
     return () => {
