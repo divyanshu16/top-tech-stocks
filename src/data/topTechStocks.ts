@@ -2,25 +2,11 @@ import { Stock } from '../types/stock';
 
 export const topTechStocks: Stock[] = [
   {
-    symbol: 'AAPL',
-    companyName: 'Apple Inc.',
+    symbol: 'TSLA',
+    companyName: 'Tesla Inc.',
     exchange: 'NASDAQ',
-    sector: 'Consumer Electronics',
-    description: 'Apple designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories. Known for iPhone, Mac, iPad, and innovative ecosystem.',
-  },
-  {
-    symbol: 'MSFT',
-    companyName: 'Microsoft Corporation',
-    exchange: 'NASDAQ',
-    sector: 'Software & Cloud',
-    description: 'Microsoft develops software, services, devices, and solutions including Windows, Office 365, Azure cloud platform, and enterprise solutions.',
-  },
-  {
-    symbol: 'GOOGL',
-    companyName: 'Alphabet Inc.',
-    exchange: 'NASDAQ',
-    sector: 'Internet & Search',
-    description: 'Alphabet (Google) specializes in internet-related services including search, advertising, cloud computing, software, and artificial intelligence.',
+    sector: 'Electric Vehicles',
+    description: 'Tesla designs, manufactures, and sells electric vehicles, battery energy storage systems, and solar products. Pioneer in EV technology.',
   },
   {
     symbol: 'AMZN',
@@ -37,6 +23,13 @@ export const topTechStocks: Stock[] = [
     description: 'Meta operates social networking platforms including Facebook, Instagram, WhatsApp, and invests heavily in virtual reality and metaverse technologies.',
   },
   {
+    symbol: 'GOOGL',
+    companyName: 'Alphabet Inc.',
+    exchange: 'NASDAQ',
+    sector: 'Internet & Search',
+    description: 'Alphabet (Google) specializes in internet-related services including search, advertising, cloud computing, software, and artificial intelligence.',
+  },
+  {
     symbol: 'NVDA',
     companyName: 'NVIDIA Corporation',
     exchange: 'NASDAQ',
@@ -44,11 +37,18 @@ export const topTechStocks: Stock[] = [
     description: 'NVIDIA designs GPUs and AI chips for gaming, professional visualization, data centers, and automotive markets. Leader in AI computing.',
   },
   {
-    symbol: 'TSLA',
-    companyName: 'Tesla Inc.',
+    symbol: 'AAPL',
+    companyName: 'Apple Inc.',
     exchange: 'NASDAQ',
-    sector: 'Electric Vehicles',
-    description: 'Tesla designs, manufactures, and sells electric vehicles, battery energy storage systems, and solar products. Pioneer in EV technology.',
+    sector: 'Consumer Electronics',
+    description: 'Apple designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories. Known for iPhone, Mac, iPad, and innovative ecosystem.',
+  },
+  {
+    symbol: 'MSFT',
+    companyName: 'Microsoft Corporation',
+    exchange: 'NASDAQ',
+    sector: 'Software & Cloud',
+    description: 'Microsoft develops software, services, devices, and solutions including Windows, Office 365, Azure cloud platform, and enterprise solutions.',
   },
   {
     symbol: 'NFLX',
