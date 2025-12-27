@@ -129,7 +129,7 @@ export default function StockGrid({ stocks, onStockClick }: StockGridProps) {
       {/* Footer */}
       <div className="mt-12 text-center text-slate-500 text-sm">
         <p>
-          Real-time data powered by TradingView • View 1D, 1W, 1M fluctuations • Click for detailed view
+          For educational and informational purposes only. Not financial advice. Do your own research before making investment decisions.
         </p>
       </div>
     </div>
