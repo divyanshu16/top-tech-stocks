@@ -23,74 +23,15 @@ export interface StockMetrics {
   beta: number | null;
 }
 
-// Calculate percentage change
-function calculateChange(current: number, previous: number): number {
-  if (!previous || previous === 0) return 0;
-  return ((current - previous) / previous) * 100;
-}
-
 export async function fetchStockPerformance(symbol: string): Promise<StockPerformance | null> {
-  try {
-    // Using Yahoo Finance API through a CORS-friendly endpoint
-    // Alternative: Use your own API key from financialmodelingprep.com
-
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1mo&interval=1d`;
-
-    const response = await fetch(url);
-
-    if (!response.ok) throw new Error('Failed to fetch');
-
-    const data = await response.json();
-
-    if (!data?.chart?.result?.[0]) {
-      throw new Error('Invalid data structure');
-    }
-
-    const result = data.chart.result[0];
-    const quotes = result.indicators.quote[0];
-    const closes = quotes.close;
-
-    // Filter out null values
-    const validPrices = closes
-      .map((price: number | null, index: number) => ({ price, index }))
-      .filter((item: any) => item.price !== null);
-
-    if (validPrices.length < 2) {
-      throw new Error('Insufficient data');
-    }
-
-    // Get current price (most recent)
-    const currentPrice = validPrices[validPrices.length - 1].price;
-
-    // Get price from 1 day ago
-    const oneDayAgo = validPrices.length > 1 ? validPrices[validPrices.length - 2].price : currentPrice;
-
-    // Get price from ~5 trading days ago (1 week)
-    const oneWeekIndex = Math.max(0, validPrices.length - 6);
-    const oneWeekAgo = validPrices[oneWeekIndex].price;
-
-    // Get price from ~20 trading days ago (1 month)
-    const oneMonthIndex = Math.max(0, validPrices.length - 21);
-    const oneMonthAgo = validPrices[oneMonthIndex].price;
-
-    return {
-      symbol,
-      day: calculateChange(currentPrice, oneDayAgo),
-      week: calculateChange(currentPrice, oneWeekAgo),
-      month: calculateChange(currentPrice, oneMonthAgo),
-    };
-  } catch (error) {
-    console.error(`Error fetching data for ${symbol}:`, error);
-
-    // Fallback: return mock data for demo purposes
-    // Remove this in production
-    return {
-      symbol,
-      day: Math.random() * 10 - 5,
-      week: Math.random() * 15 - 7.5,
-      month: Math.random() * 20 - 10,
-    };
-  }
+  // Return mock data to avoid CORS issues with Yahoo Finance API
+  // To enable real data, use a backend proxy or alternative API with CORS support
+  return {
+    symbol,
+    day: Math.random() * 10 - 5,
+    week: Math.random() * 15 - 7.5,
+    month: Math.random() * 20 - 10,
+  };
 }
 
 // For better accuracy, fetch historical data
@@ -120,70 +61,31 @@ export function getPercentageColor(value: number): string {
 
 // Fetch detailed stock metrics
 export async function fetchStockMetrics(symbol: string): Promise<StockMetrics | null> {
-  try {
-    // Fetch quote data from Yahoo Finance
-    const quoteUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1y&interval=1d`;
-    const response = await fetch(quoteUrl);
+  // Return mock data to avoid CORS issues with Yahoo Finance API
+  // To enable real data, use a backend proxy or alternative API with CORS support
 
-    if (!response.ok) throw new Error('Failed to fetch quote');
+  // Generate mock realistic data for demo purposes
+  const basePrice = 100 + Math.random() * 300;
+  const dayVolatility = basePrice * 0.02;
+  const yearVolatility = basePrice * 0.3;
 
-    const data = await response.json();
-    const result = data?.chart?.result?.[0];
-
-    if (!result) throw new Error('Invalid data structure');
-
-    const meta = result.meta;
-    const quotes = result.indicators.quote[0];
-    const closes = quotes.close.filter((p: number | null) => p !== null);
-    const highs = quotes.high.filter((p: number | null) => p !== null);
-    const lows = quotes.low.filter((p: number | null) => p !== null);
-    const volumes = quotes.volume.filter((p: number | null) => p !== null);
-
-    // Current price
-    const currentPrice = meta.regularMarketPrice || closes[closes.length - 1];
-
-    // 52-week high/low
-    const fiftyTwoWeekHigh = Math.max(...highs);
-    const fiftyTwoWeekLow = Math.min(...lows);
-
-    // Day range
-    const dayHigh = meta.regularMarketDayHigh || highs[highs.length - 1];
-    const dayLow = meta.regularMarketDayLow || lows[lows.length - 1];
-
-    // Volume
-    const volume = meta.regularMarketVolume || volumes[volumes.length - 1];
-    const avgVolume = volumes.reduce((a: number, b: number) => a + b, 0) / volumes.length;
-
-    // YTD and 1Y change
-    const yearAgoPrice = closes[0];
-    const oneYearChange = calculateChange(currentPrice, yearAgoPrice);
-
-    // YTD - approximate based on available data
-    const ytdIndex = Math.max(0, closes.length - 252); // ~252 trading days in a year
-    const ytdStartPrice = closes[ytdIndex];
-    const ytdChange = calculateChange(currentPrice, ytdStartPrice);
-
-    return {
-      symbol,
-      currentPrice,
-      dayHigh,
-      dayLow,
-      fiftyTwoWeekHigh,
-      fiftyTwoWeekLow,
-      marketCap: meta.marketCap || 0,
-      peRatio: meta.trailingPE || null,
-      eps: meta.epsTrailingTwelveMonths || null,
-      volume,
-      avgVolume,
-      dividendYield: meta.dividendYield ? meta.dividendYield * 100 : null,
-      ytdChange,
-      oneYearChange,
-      beta: meta.beta || null,
-    };
-  } catch (error) {
-    console.error(`Error fetching metrics for ${symbol}:`, error);
-    return null;
-  }
+  return {
+    symbol,
+    currentPrice: basePrice,
+    dayHigh: basePrice + dayVolatility * Math.random(),
+    dayLow: basePrice - dayVolatility * Math.random(),
+    fiftyTwoWeekHigh: basePrice + yearVolatility * Math.random(),
+    fiftyTwoWeekLow: basePrice - yearVolatility * Math.random(),
+    marketCap: (Math.random() * 2000 + 500) * 1e9, // 500B - 2.5T
+    peRatio: Math.random() * 50 + 10,
+    eps: basePrice / (Math.random() * 50 + 10),
+    volume: Math.random() * 100e6 + 10e6,
+    avgVolume: Math.random() * 80e6 + 15e6,
+    dividendYield: Math.random() < 0.5 ? Math.random() * 3 : null,
+    ytdChange: Math.random() * 60 - 20,
+    oneYearChange: Math.random() * 80 - 30,
+    beta: Math.random() * 2 + 0.5,
+  };
 }
 
 // Format large numbers (market cap, volume)

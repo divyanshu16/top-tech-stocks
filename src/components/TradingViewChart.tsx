@@ -1,5 +1,3 @@
-import { useEffect, useRef } from 'react';
-
 interface TradingViewChartProps {
   symbol: string;
   exchange: string;
@@ -7,80 +5,41 @@ interface TradingViewChartProps {
   height?: number;
 }
 
-declare global {
-  interface Window {
-    TradingView: any;
-  }
-}
-
 export default function TradingViewChart({
   symbol,
   exchange,
-  type = 'mini',
   height = 300
 }: TradingViewChartProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const widgetRef = useRef<any>(null);
-
-  useEffect(() => {
-    if (!containerRef.current || !window.TradingView) return;
-
-    // Clear previous widget
-    if (widgetRef.current) {
-      containerRef.current.innerHTML = '';
-    }
-
-    const fullSymbol = `${exchange}:${symbol}`;
-
-    // Use the standard widget for both mini and advanced
-    const config: any = {
-      container_id: containerRef.current.id,
-      symbol: fullSymbol,
-      interval: 'D',
-      timezone: 'America/New_York',
-      theme: 'dark',
-      style: '1',
-      locale: 'en',
-      enable_publishing: false,
-      allow_symbol_change: false,
-      save_image: false,
-      width: '100%',
-      height: height,
-    };
-
-    if (type === 'mini') {
-      // Simplified settings for mini cards
-      config.hide_top_toolbar = true;
-      config.hide_legend = true;
-      config.hide_side_toolbar = true;
-      config.toolbar_bg = '#0f172a';
-      config.withdateranges = false;
-    } else {
-      // Full settings for modal
-      config.toolbar_bg = '#1e293b';
-      config.hide_side_toolbar = false;
-      config.studies = ['MASimple@tv-basicstudies'];
-    }
-
-    try {
-      widgetRef.current = new window.TradingView.widget(config);
-    } catch (error) {
-      console.error('TradingView widget error:', error);
-    }
-
-    return () => {
-      if (containerRef.current) {
-        containerRef.current.innerHTML = '';
-      }
-    };
-  }, [symbol, exchange, type, height]);
+  // TradingView widget disabled to avoid CORS issues
+  // To enable, add the TradingView script to index.html:
+  // <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
   return (
     <div
-      ref={containerRef}
-      id={`tradingview-${type}-${symbol}-${Math.random().toString(36).substr(2, 9)}`}
-      className="w-full"
+      className="w-full flex items-center justify-center bg-slate-800 rounded-lg border border-slate-700"
       style={{ height: `${height}px` }}
-    />
+    >
+      <div className="text-center p-6">
+        <svg
+          className="w-16 h-16 mx-auto mb-4 text-slate-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          />
+        </svg>
+        <p className="text-slate-400 text-sm">
+          Chart unavailable
+        </p>
+        <p className="text-slate-500 text-xs mt-2">
+          {exchange}:{symbol}
+        </p>
+      </div>
+    </div>
   );
 }
