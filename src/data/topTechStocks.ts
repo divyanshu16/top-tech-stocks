@@ -60,7 +60,7 @@ export const topTechStocks: Stock[] = [
   {
     symbol: 'SHOP',
     companyName: 'Shopify Inc.',
-    exchange: 'NYSE',
+    exchange: 'NASDAQ',
     sector: 'E-commerce Platform',
     description: 'Shopify provides e-commerce platform and services for online stores and retail point-of-sale systems. Empowers millions of businesses worldwide.',
   },
