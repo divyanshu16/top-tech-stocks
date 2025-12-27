@@ -1,6 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Stock } from '../types/stock';
 import TradingViewChart from './TradingViewChart';
+import {
+  fetchStockMetrics,
+  StockMetrics,
+  formatCurrency,
+  formatLargeNumber,
+  formatVolume,
+  formatPercentage,
+  getPercentageColor,
+} from '../utils/stockData';
 
 interface StockModalProps {
   stock: Stock | null;
@@ -8,6 +17,22 @@ interface StockModalProps {
 }
 
 export default function StockModal({ stock, onClose }: StockModalProps) {
+  const [metrics, setMetrics] = useState<StockMetrics | null>(null);
+  const [loadingMetrics, setLoadingMetrics] = useState(false);
+
+  // Fetch metrics when stock changes
+  useEffect(() => {
+    if (stock) {
+      setLoadingMetrics(true);
+      fetchStockMetrics(stock.symbol).then((data) => {
+        setMetrics(data);
+        setLoadingMetrics(false);
+      });
+    } else {
+      setMetrics(null);
+    }
+  }, [stock]);
+
   // Close on ESC key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -74,6 +99,120 @@ export default function StockModal({ stock, onClose }: StockModalProps) {
 
         {/* Content */}
         <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+          {/* Key Metrics */}
+          <div className="p-6 bg-slate-900 border-b border-slate-700">
+            <h3 className="text-xl font-semibold text-white mb-4">Key Metrics</h3>
+
+            {loadingMetrics ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[...Array(12)].map((_, i) => (
+                  <div key={i} className="bg-slate-800 rounded-lg p-4">
+                    <div className="h-4 bg-slate-700 rounded mb-2 loading-shimmer"></div>
+                    <div className="h-6 bg-slate-700 rounded loading-shimmer"></div>
+                  </div>
+                ))}
+              </div>
+            ) : metrics ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {/* Current Price */}
+                <div className="bg-gradient-to-br from-blue-900/20 to-slate-800 rounded-lg p-4 border border-blue-500/20">
+                  <p className="text-xs text-slate-400 mb-1">Current Price</p>
+                  <p className="text-2xl font-bold text-white">{formatCurrency(metrics.currentPrice)}</p>
+                </div>
+
+                {/* Day Range */}
+                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs text-slate-400 mb-1">Day Range</p>
+                  <p className="text-lg font-semibold text-white">
+                    {formatCurrency(metrics.dayLow)} - {formatCurrency(metrics.dayHigh)}
+                  </p>
+                </div>
+
+                {/* 52W High */}
+                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs text-slate-400 mb-1">52W High</p>
+                  <p className="text-lg font-semibold text-green-400">{formatCurrency(metrics.fiftyTwoWeekHigh)}</p>
+                </div>
+
+                {/* 52W Low */}
+                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs text-slate-400 mb-1">52W Low</p>
+                  <p className="text-lg font-semibold text-red-400">{formatCurrency(metrics.fiftyTwoWeekLow)}</p>
+                </div>
+
+                {/* Market Cap */}
+                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs text-slate-400 mb-1">Market Cap</p>
+                  <p className="text-lg font-semibold text-white">{formatLargeNumber(metrics.marketCap)}</p>
+                </div>
+
+                {/* P/E Ratio */}
+                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs text-slate-400 mb-1">P/E Ratio</p>
+                  <p className="text-lg font-semibold text-white">
+                    {metrics.peRatio ? metrics.peRatio.toFixed(2) : 'N/A'}
+                  </p>
+                </div>
+
+                {/* EPS */}
+                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs text-slate-400 mb-1">EPS (TTM)</p>
+                  <p className="text-lg font-semibold text-white">
+                    {metrics.eps ? formatCurrency(metrics.eps) : 'N/A'}
+                  </p>
+                </div>
+
+                {/* Beta */}
+                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs text-slate-400 mb-1">Beta</p>
+                  <p className="text-lg font-semibold text-white">
+                    {metrics.beta ? metrics.beta.toFixed(2) : 'N/A'}
+                  </p>
+                </div>
+
+                {/* Volume */}
+                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs text-slate-400 mb-1">Volume</p>
+                  <p className="text-lg font-semibold text-white">{formatVolume(metrics.volume)}</p>
+                </div>
+
+                {/* Avg Volume */}
+                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs text-slate-400 mb-1">Avg Volume</p>
+                  <p className="text-lg font-semibold text-white">{formatVolume(metrics.avgVolume)}</p>
+                </div>
+
+                {/* YTD Change */}
+                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs text-slate-400 mb-1">YTD Change</p>
+                  <p className={`text-lg font-semibold ${getPercentageColor(metrics.ytdChange)}`}>
+                    {formatPercentage(metrics.ytdChange)}
+                  </p>
+                </div>
+
+                {/* 1Y Change */}
+                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs text-slate-400 mb-1">1Y Change</p>
+                  <p className={`text-lg font-semibold ${getPercentageColor(metrics.oneYearChange)}`}>
+                    {formatPercentage(metrics.oneYearChange)}
+                  </p>
+                </div>
+
+                {/* Dividend Yield - only show if applicable */}
+                {metrics.dividendYield && metrics.dividendYield > 0 && (
+                  <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                    <p className="text-xs text-slate-400 mb-1">Dividend Yield</p>
+                    <p className="text-lg font-semibold text-green-400">
+                      {metrics.dividendYield.toFixed(2)}%
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-slate-400 text-center py-8">Unable to load metrics</p>
+            )}
+          </div>
+
           {/* Chart */}
           <div className="p-6 bg-slate-900">
             <TradingViewChart

@@ -5,6 +5,24 @@ export interface StockPerformance {
   month: number;    // 1-month % change
 }
 
+export interface StockMetrics {
+  symbol: string;
+  currentPrice: number;
+  dayHigh: number;
+  dayLow: number;
+  fiftyTwoWeekHigh: number;
+  fiftyTwoWeekLow: number;
+  marketCap: number;
+  peRatio: number | null;
+  eps: number | null;
+  volume: number;
+  avgVolume: number;
+  dividendYield: number | null;
+  ytdChange: number;
+  oneYearChange: number;
+  beta: number | null;
+}
+
 // Calculate percentage change
 function calculateChange(current: number, previous: number): number {
   if (!previous || previous === 0) return 0;
@@ -98,4 +116,94 @@ export function getPercentageColor(value: number): string {
   if (value > 0) return 'text-green-400';
   if (value < 0) return 'text-red-400';
   return 'text-slate-400';
+}
+
+// Fetch detailed stock metrics
+export async function fetchStockMetrics(symbol: string): Promise<StockMetrics | null> {
+  try {
+    // Fetch quote data from Yahoo Finance
+    const quoteUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1y&interval=1d`;
+    const response = await fetch(quoteUrl);
+
+    if (!response.ok) throw new Error('Failed to fetch quote');
+
+    const data = await response.json();
+    const result = data?.chart?.result?.[0];
+
+    if (!result) throw new Error('Invalid data structure');
+
+    const meta = result.meta;
+    const quotes = result.indicators.quote[0];
+    const closes = quotes.close.filter((p: number | null) => p !== null);
+    const highs = quotes.high.filter((p: number | null) => p !== null);
+    const lows = quotes.low.filter((p: number | null) => p !== null);
+    const volumes = quotes.volume.filter((p: number | null) => p !== null);
+
+    // Current price
+    const currentPrice = meta.regularMarketPrice || closes[closes.length - 1];
+
+    // 52-week high/low
+    const fiftyTwoWeekHigh = Math.max(...highs);
+    const fiftyTwoWeekLow = Math.min(...lows);
+
+    // Day range
+    const dayHigh = meta.regularMarketDayHigh || highs[highs.length - 1];
+    const dayLow = meta.regularMarketDayLow || lows[lows.length - 1];
+
+    // Volume
+    const volume = meta.regularMarketVolume || volumes[volumes.length - 1];
+    const avgVolume = volumes.reduce((a: number, b: number) => a + b, 0) / volumes.length;
+
+    // YTD and 1Y change
+    const yearAgoPrice = closes[0];
+    const oneYearChange = calculateChange(currentPrice, yearAgoPrice);
+
+    // YTD - approximate based on available data
+    const ytdIndex = Math.max(0, closes.length - 252); // ~252 trading days in a year
+    const ytdStartPrice = closes[ytdIndex];
+    const ytdChange = calculateChange(currentPrice, ytdStartPrice);
+
+    return {
+      symbol,
+      currentPrice,
+      dayHigh,
+      dayLow,
+      fiftyTwoWeekHigh,
+      fiftyTwoWeekLow,
+      marketCap: meta.marketCap || 0,
+      peRatio: meta.trailingPE || null,
+      eps: meta.epsTrailingTwelveMonths || null,
+      volume,
+      avgVolume,
+      dividendYield: meta.dividendYield ? meta.dividendYield * 100 : null,
+      ytdChange,
+      oneYearChange,
+      beta: meta.beta || null,
+    };
+  } catch (error) {
+    console.error(`Error fetching metrics for ${symbol}:`, error);
+    return null;
+  }
+}
+
+// Format large numbers (market cap, volume)
+export function formatLargeNumber(value: number): string {
+  if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
+  if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
+  if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
+  if (value >= 1e3) return `$${(value / 1e3).toFixed(2)}K`;
+  return `$${value.toFixed(2)}`;
+}
+
+// Format volume
+export function formatVolume(value: number): string {
+  if (value >= 1e9) return `${(value / 1e9).toFixed(2)}B`;
+  if (value >= 1e6) return `${(value / 1e6).toFixed(2)}M`;
+  if (value >= 1e3) return `${(value / 1e3).toFixed(2)}K`;
+  return value.toFixed(0);
+}
+
+// Format currency
+export function formatCurrency(value: number): string {
+  return `$${value.toFixed(2)}`;
 }
