@@ -54,8 +54,8 @@ export default function StockGrid({ stocks, onStockClick }: StockGridProps) {
 
       {/* Three-panel layout */}
       <div className="flex gap-6 max-w-[1920px] mx-auto">
-        {/* Left Panel - 1D Performance */}
-        <div className="w-64 flex-shrink-0">
+        {/* Left Panel - 1D Performance - Hidden on small/medium screens */}
+        <div className="hidden xl:block w-64 flex-shrink-0">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-4 border border-slate-700/50 sticky top-4">
             <h2 className="text-lg font-bold text-white mb-4">1D Performance</h2>
             {loading ? (
@@ -96,8 +96,8 @@ export default function StockGrid({ stocks, onStockClick }: StockGridProps) {
           </div>
         </div>
 
-        {/* Right Panel - 1W Performance */}
-        <div className="w-64 flex-shrink-0">
+        {/* Right Panel - 1W Performance - Hidden on small/medium/large screens */}
+        <div className="hidden 2xl:block w-64 flex-shrink-0">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-4 border border-slate-700/50 sticky top-4">
             <h2 className="text-lg font-bold text-white mb-4">1W Performance</h2>
             {loading ? (
