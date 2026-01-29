@@ -31,10 +31,8 @@ function calculateChange(current: number, previous: number): number {
 
 export async function fetchStockPerformance(symbol: string): Promise<StockPerformance | null> {
   try {
-    // Using Yahoo Finance API through a CORS-friendly endpoint
-    // Alternative: Use your own API key from financialmodelingprep.com
-
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1mo&interval=1d`;
+    // Fetch 2 months of data to ensure we have enough for 1-month calculations
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=2mo&interval=1d`;
 
     const response = await fetch(url);
 
@@ -47,49 +45,67 @@ export async function fetchStockPerformance(symbol: string): Promise<StockPerfor
     }
 
     const result = data.chart.result[0];
+    const timestamps = result.timestamp;
     const quotes = result.indicators.quote[0];
     const closes = quotes.close;
 
-    // Filter out null values
-    const validPrices = closes
-      .map((price: number | null, index: number) => ({ price, index }))
-      .filter((item: any) => item.price !== null);
+    // Create array of valid price points with timestamps
+    const priceData = timestamps
+      .map((timestamp: number, index: number) => ({
+        timestamp: timestamp * 1000, // Convert to milliseconds
+        price: closes[index],
+      }))
+      .filter((item: any) => item.price !== null && item.price !== undefined);
 
-    if (validPrices.length < 2) {
+    if (priceData.length < 2) {
       throw new Error('Insufficient data');
     }
 
-    // Get current price (most recent)
-    const currentPrice = validPrices[validPrices.length - 1].price;
+    // Get current price and timestamp (most recent)
+    const currentData = priceData[priceData.length - 1];
+    const currentPrice = currentData.price;
+    const currentTime = currentData.timestamp;
 
-    // Get price from 1 day ago
-    const oneDayAgo = validPrices.length > 1 ? validPrices[validPrices.length - 2].price : currentPrice;
+    // Calculate target timestamps
+    const oneDayAgoTime = currentTime - (24 * 60 * 60 * 1000); // 1 day in milliseconds
+    const oneWeekAgoTime = currentTime - (7 * 24 * 60 * 60 * 1000); // 7 days in milliseconds
+    const oneMonthAgoTime = currentTime - (30 * 24 * 60 * 60 * 1000); // 30 days in milliseconds
 
-    // Get price from ~5 trading days ago (1 week)
-    const oneWeekIndex = Math.max(0, validPrices.length - 6);
-    const oneWeekAgo = validPrices[oneWeekIndex].price;
+    // Find closest price to each target time
+    const findClosestPrice = (targetTime: number): number => {
+      let closestData = priceData[0];
+      let minDiff = Math.abs(priceData[0].timestamp - targetTime);
 
-    // Get price from ~20 trading days ago (1 month)
-    const oneMonthIndex = Math.max(0, validPrices.length - 21);
-    const oneMonthAgo = validPrices[oneMonthIndex].price;
+      for (const data of priceData) {
+        const diff = Math.abs(data.timestamp - targetTime);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestData = data;
+        }
+        // If we've passed the target time, use the previous data point
+        if (data.timestamp > targetTime) {
+          break;
+        }
+      }
+
+      return closestData.price;
+    };
+
+    const oneDayAgoPrice = findClosestPrice(oneDayAgoTime);
+    const oneWeekAgoPrice = findClosestPrice(oneWeekAgoTime);
+    const oneMonthAgoPrice = findClosestPrice(oneMonthAgoTime);
 
     return {
       symbol,
-      day: calculateChange(currentPrice, oneDayAgo),
-      week: calculateChange(currentPrice, oneWeekAgo),
-      month: calculateChange(currentPrice, oneMonthAgo),
+      day: calculateChange(currentPrice, oneDayAgoPrice),
+      week: calculateChange(currentPrice, oneWeekAgoPrice),
+      month: calculateChange(currentPrice, oneMonthAgoPrice),
     };
   } catch (error) {
     console.error(`Error fetching data for ${symbol}:`, error);
 
-    // Fallback: return mock data for demo purposes
-    // Remove this in production
-    return {
-      symbol,
-      day: Math.random() * 10 - 5,
-      week: Math.random() * 15 - 7.5,
-      month: Math.random() * 20 - 10,
-    };
+    // Fallback: return null instead of mock data
+    return null;
   }
 }
 
